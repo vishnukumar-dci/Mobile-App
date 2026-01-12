@@ -1,15 +1,84 @@
-const express = require('express')
-const userController = require('../controller/userController')
-const authenticateToken = require('../middleware/authMiddleware')
+const express = require("express");
+const { body } = require("express-validator");
+const userController = require("../controller/userController");
+const authenticateToken = require("../middleware/authMiddleware");
+const upload = require("../middleware/upload");
+const imageController = require('../controller/imageController')
 
-const router = express.Router()
+const router = express.Router();
 
-router.post('/register', userController.createUser)
+router.post(
+  "/register",
+  [
+    body("email").isEmail().withMessage("Please provide a valid email"),
 
-router.post('/login', userController.loginUser)
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("Password must be at least 8 characters long"),
 
-router.get('/get-user', authenticateToken, userController.getUser)
+    body("firstName")
+      .notEmpty()
+      .withMessage("First name is required")
+      .isString()
+      .withMessage("First name must be a string")
+      .trim(),
 
-router.put('/update', authenticateToken, userController.updateUser)
+    body("lastName")
+      .notEmpty()
+      .withMessage("Last name is required")
+      .isString()
+      .withMessage("Last name must be a string")
+      .trim(),
 
-module.exports = router
+    body("phoneno")
+      .notEmpty()
+      .withMessage("Phone number is required")
+      .isMobilePhone("any")
+      .withMessage("Please provide a valid phone number"),
+  ],
+  userController.createUser
+);
+
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Please provide a valid email"),
+
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("Password must be at least 8 characters long"),
+  ],
+  userController.loginUser
+);
+
+router.get("/get-user", authenticateToken, userController.getUser);
+
+router.put(
+  "/update",
+  authenticateToken,
+  upload.single("profile"),
+  [
+    body("firstName")
+      .optional()
+      .isString()
+      .withMessage("First name must be a string")
+      .trim(),
+
+    body("lastName")
+      .optional()
+      .isString()
+      .withMessage("Last name must be a string")
+      .trim(),
+
+    body("phoneno")
+      .optional()
+      .isMobilePhone("any")
+      .withMessage("Please provide a valid phone number"),
+  ],
+  userController.updateUser
+);
+
+router.post('/generate-image',imageController.generateImage)
+
+
+module.exports = router;

@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const userRouter = require('./routes/userRouter')
 const connectDB = require('./config/db')
+const logger = require('./utils/logger')
 
 const app = express()
 const PORT = 8000
@@ -19,5 +20,6 @@ app.get('/',(req,res) => {
 app.use('/user',userRouter)
 
 app.listen(PORT, () => {
-    console.log(`server is running on ${PORT}`)
+    // console.log(`server is running on ${PORT}`)
+    logger.info(`server is running on ${PORT}`)
 })
